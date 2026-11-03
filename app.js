@@ -52,6 +52,7 @@ var medals = ['🥇', '🥈', '🥉'];
 function render() {
   renderGames();
   renderOverall();
+  if (state.detailGame) renderDetail();
 }
 
 function renderGames() {
@@ -75,8 +76,9 @@ function renderGames() {
     var subtitle = state.win === 'today'
       ? played + ' played'
       : played + ' competing';
-    return '<div class="game" data-game="' + g.id + '"><div class="gh"><b>' + g.emoji + ' ' + g.label + '</b>' +
-           '<span>' + subtitle + '</span></div>' + body + '</div>';
+    return '<div class="game" data-game="' + g.id + '" role="button" tabindex="0">' +
+           '<div class="gh"><b>' + g.emoji + ' ' + g.label + '</b>' +
+           '<span>' + subtitle + ' <i class="chev">›</i></span></div>' + body + '</div>';
   }).join('');
 }
 
@@ -234,6 +236,121 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2600);
 }
+
+// ── Game detail (charts) ──────────────────────────────────────────────────────
+var PALETTE = ['#6ceaf7','#ffb703','#ff5d8f','#8bd450','#b48cff','#ff924c',
+               '#4cc9f0','#f15bb5','#80ed99','#fee440','#9b5de5','#00bbf9'];
+function colorFor(player) {
+  var i = CONFIG.PLAYERS.indexOf(player);
+  return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
+}
+function uniq(v, i, a) { return a.indexOf(v) === i; }
+function shortDate(d) { var p = d.split('-'); return p.length === 3 ? (+p[1]) + '/' + (+p[2]) : d; }
+
+var detailBg = document.getElementById('detailBg');
+var detailPanel = document.getElementById('detailPanel');
+
+function openGameDetail(gameId) {
+  state.detailGame = gameId;
+  renderDetail();
+  detailBg.classList.add('show');
+}
+function closeDetail() { state.detailGame = null; detailBg.classList.remove('show'); }
+detailBg.addEventListener('click', function (e) { if (e.target === detailBg) closeDetail(); });
+
+function renderDetail() {
+  var gameId = state.detailGame;
+  if (!gameId) return;
+  var g = CONFIG.GAME_BY_ID[gameId];
+  var subs = SCORING.dedupe(state.scores).filter(function (s) { return s.game === gameId; });
+  var standings = SCORING.overall(subs, {}); // all-time points for this game
+
+  var html =
+    '<div class="detail-head" data-game="' + gameId + '">' +
+      '<b>' + g.emoji + ' ' + g.label + '</b>' +
+      '<button class="detail-close" aria-label="Close">✕</button>' +
+    '</div>' +
+    '<div class="chart-title">Scores over time</div>' +
+    lineChart(gameId) +
+    '<div class="chart-title">Who owns ' + g.label + '</div>' +
+    pointsBars(standings, g.accent);
+
+  detailPanel.innerHTML = html;
+  detailPanel.querySelector('.detail-close').addEventListener('click', closeDetail);
+}
+
+// Multi-series line chart (one line per player) as inline SVG.
+function lineChart(gameId) {
+  var subs = SCORING.dedupe(state.scores).filter(function (s) { return s.game === gameId; });
+  var label = CONFIG.GAME_BY_ID[gameId].label;
+  if (!subs.length) return '<div class="chart-empty">No scores yet — play ' + label + " and everyone's runs will chart here.</div>";
+
+  var dates = subs.map(function (s) { return s.date; }).filter(uniq).sort();
+  var players = subs.map(function (s) { return s.player; }).filter(uniq)
+                    .sort(function (a, b) { return CONFIG.PLAYERS.indexOf(a) - CONFIG.PLAYERS.indexOf(b); });
+  var byPD = {}; subs.forEach(function (s) { byPD[s.player + '|' + s.date] = s.score; });
+
+  var vals = subs.map(function (s) { return s.score; });
+  var yMax = Math.max.apply(null, vals), yMin = Math.min.apply(null, vals);
+  if (yMax === yMin) { yMax += 1; yMin -= 1; }
+  var padV = (yMax - yMin) * 0.12; yMax += padV; yMin -= padV;
+
+  var W = 320, H = 182, L = 36, R = 12, T = 12, B = 26;
+  function X(i) { return dates.length <= 1 ? (L + (W - L - R) / 2) : L + (i / (dates.length - 1)) * (W - L - R); }
+  function Y(v) { return T + (1 - (v - yMin) / (yMax - yMin)) * (H - T - B); }
+
+  var svg = '<svg class="linechart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img">';
+  // gridlines + y labels at min / mid / max
+  [yMin, (yMin + yMax) / 2, yMax].forEach(function (v) {
+    var y = Y(v);
+    svg += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - R) + '" y2="' + y + '" class="grid"/>';
+    svg += '<text x="' + (L - 5) + '" y="' + (y + 3) + '" class="ylab">' + Math.round(v) + '</text>';
+  });
+  // x labels (first + last date)
+  svg += '<text x="' + X(0) + '" y="' + (H - 8) + '" class="xlab" text-anchor="start">' + shortDate(dates[0]) + '</text>';
+  if (dates.length > 1)
+    svg += '<text x="' + X(dates.length - 1) + '" y="' + (H - 8) + '" class="xlab" text-anchor="end">' + shortDate(dates[dates.length - 1]) + '</text>';
+
+  players.forEach(function (p) {
+    var pts = [];
+    dates.forEach(function (d, i) { if (byPD[p + '|' + d] != null) pts.push([X(i), Y(byPD[p + '|' + d])]); });
+    var c = colorFor(p);
+    if (pts.length > 1)
+      svg += '<polyline fill="none" stroke="' + c + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="' +
+             pts.map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' ') + '"/>';
+    pts.forEach(function (q) { svg += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="3" fill="' + c + '"/>'; });
+  });
+  svg += '</svg>';
+
+  var legend = '<div class="legend">' + players.map(function (p) {
+    return '<span class="lg"><i style="background:' + colorFor(p) + '"></i>' + esc(p) + '</span>';
+  }).join('') + '</div>';
+
+  return svg + legend;
+}
+
+// Horizontal placement-points bars (who's winning this game overall).
+function pointsBars(standings, accent) {
+  if (!standings.length) return '<div class="chart-empty">No points yet.</div>';
+  var max = standings[0].points || 1;
+  return '<div class="bars">' + standings.map(function (r) {
+    var w = Math.max(6, (r.points / max) * 100);
+    return '<div class="bar-row"><div class="bar-nm">' + esc(r.player) + '</div>' +
+           '<div class="bar-track"><div class="bar-fill" style="width:' + w + '%;background:' + accent + '"></div></div>' +
+           '<div class="bar-val">' + r.points + '</div></div>';
+  }).join('') + '</div>';
+}
+
+// Open detail on card tap / keyboard activate (delegated — cards re-render on poll).
+document.getElementById('games').addEventListener('click', function (e) {
+  var card = e.target.closest('.game');
+  if (card) openGameDetail(card.dataset.game);
+});
+document.getElementById('games').addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  var card = e.target.closest('.game');
+  if (card) { e.preventDefault(); openGameDetail(card.dataset.game); }
+});
 
 // ── Go ─────────────────────────────────────────────────────────────────────────
 fetchScores();

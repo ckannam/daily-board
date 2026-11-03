@@ -124,8 +124,7 @@ body {
 }
 .game[data-game="krillion"] .gh b {
   font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 1px;
-  color: #49dff0; text-transform: uppercase;
-  text-shadow: -1.5px 0 rgba(255,47,115,.9), 1.5px 0 rgba(73,223,240,.55);
+  color: #6ceaf7; text-transform: uppercase;
 }
 .game[data-game="krillion"] .gh span { color: #5b89b8; }
 .game[data-game="krillion"] .pos { color: #3a6ea5; }
@@ -191,3 +190,44 @@ body {
   .header .live .dot { animation: none; }
   .submit:active { transform: none; }
 }
+
+/* Game cards are tappable → open the detail/charts view */
+.game { cursor: pointer; }
+.game:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.chev { font-style: normal; opacity: .7; }
+
+/* ── Detail panel (charts) ─────────────────────────────────────────────────── */
+.detail {
+  background: #0d1124; width: 100%; max-width: 480px; border-radius: 18px 18px 0 0;
+  border-top: 1px solid var(--line); padding: 16px 16px 26px; max-height: 88vh; overflow-y: auto;
+}
+.detail-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.detail-head b { font-size: 18px; }
+.detail-close {
+  border: 0; background: var(--panel); color: var(--muted); width: 34px; height: 34px;
+  border-radius: 9px; font-size: 15px; cursor: pointer;
+}
+/* game wordmark in the detail header, matching each card skin */
+.detail-head[data-game="krillion"] b { font-family: 'Press Start 2P', monospace; font-size: 13px; color: #6ceaf7; text-transform: uppercase; }
+.detail-head[data-game="gnarlyq"] b  { font-family: 'Press Start 2P', monospace; font-size: 13px; color: #4f86ff; text-transform: uppercase; }
+.detail-head[data-game="maptap"] b   { font-family: 'Space Mono', monospace; font-weight: 700; color: #2ee6e6; letter-spacing: 1px; }
+.detail-head[data-game="farflung"] b { font-family: 'Zilla Slab', serif; font-weight: 700; color: #d2574f; text-transform: uppercase; letter-spacing: .5px; }
+
+.chart-title { font-size: 11px; text-transform: uppercase; letter-spacing: .9px; color: var(--muted); margin: 18px 0 8px; }
+.chart-empty { color: var(--muted); font-size: 13px; font-style: italic; padding: 10px 0; }
+
+.linechart { width: 100%; height: 190px; display: block; }
+.linechart .grid { stroke: #222842; stroke-width: 1; }
+.linechart .ylab { fill: #6b7395; font-size: 9px; text-anchor: end; font-family: 'Space Mono', monospace; }
+.linechart .xlab { fill: #6b7395; font-size: 9px; font-family: 'Space Mono', monospace; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 10px; }
+.legend .lg { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); }
+.legend .lg i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar-row { display: flex; align-items: center; gap: 10px; }
+.bar-nm { width: 58px; font-size: 13px; flex: 0 0 auto; }
+.bar-track { flex: 1; background: #1a1f38; border-radius: 6px; height: 16px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 6px; min-width: 6px; }
+.bar-val { width: 28px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }

@@ -11,10 +11,10 @@
   // Game metadata. `emoji` + `label` drive the UI; `higher` = higher score wins.
   // Order here is the order the cards render on the board.
   var GAMES = [
-    { id: 'krillion', label: 'Krillion', emoji: '🦐', higher: true },
-    { id: 'gnarlyq',  label: 'GnarlyQ',  emoji: '🕹️', higher: true },
-    { id: 'maptap',   label: 'MapTap',   emoji: '🌐', higher: true },
-    { id: 'farflung', label: 'Farflung', emoji: '🧭', higher: true }
+    { id: 'krillion', label: 'Krillion', emoji: '🦐', higher: true, accent: '#6ceaf7' },
+    { id: 'gnarlyq',  label: 'GnarlyQ',  emoji: '🕹️', higher: true, accent: '#4f86ff' },
+    { id: 'maptap',   label: 'MapTap',   emoji: '🌐', higher: true, accent: '#2ee6e6' },
+    { id: 'farflung', label: 'Farflung', emoji: '🧭', higher: true, accent: '#d2574f' }
   ];
 
   var GAME_BY_ID = GAMES.reduce(function (m, g) { m[g.id] = g; return m; }, {});

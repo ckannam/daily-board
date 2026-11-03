@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#0b0e18">
+  <title>Daily Board</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <img class="crest" src="assets/crest.png" alt="crest"
+           onerror="this.outerHTML='&lt;div class=\'crest-fallback\'&gt;ΠΚΑ&lt;small&gt;crest&lt;/small&gt;&lt;/div&gt;'">
+      <div class="title">
+        <b>Daily Board</b>
+        <div class="live"><span class="dot"></span><span id="liveText">connecting…</span></div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button data-win="today" class="on">Today</button>
+      <button data-win="week">Week</button>
+      <button data-win="all">All-time</button>
+    </div>
+
+    <button class="submit" id="openSubmit">+ Paste today's score</button>
+
+    <div id="games"></div>
+    <div id="overall" class="overall"></div>
+  </div>
+
+  <!-- Submit modal -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <h3>Add a score</h3>
+      <textarea id="pasteBox" placeholder="Paste a game's result here (Krillion, GnarlyQ, MapTap, Farflung)…" autocomplete="off"></textarea>
+      <div class="preview" id="preview"></div>
+
+      <div id="nameSection" style="display:none">
+        <div class="label">Who are you?</div>
+        <input class="name-input" id="nameInput" placeholder="Type your name…" autocomplete="off">
+        <div class="suggest" id="suggest"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelBtn">Cancel</button>
+        <button class="btn-go" id="submitBtn" disabled>Add it</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="parsers.js"></script>
+  <script src="scoring.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

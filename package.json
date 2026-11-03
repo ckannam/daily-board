@@ -1,0 +1,16 @@
+{
+  "name": "daily-board",
+  "version": "1.0.0",
+  "description": "Live scoreboard for the group's daily trivia games.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/parsers.test.js && node test/scoring.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -84,7 +84,29 @@
     });
   }
 
-  var API = { dedupe: dedupe, rankEntries: rankEntries, gameBoard: gameBoard, overall: overall };
+  // Weekly awards: one winner (or co-winners on a tie) per game plus an overall
+  // champion, computed over a date window. "Winner" = most placement points.
+  // Games (or the champion slot) with nobody in-window return winners: [].
+  function winnersOf(standings) {
+    if (!standings.length) return { winners: [], points: 0 };
+    var top = standings[0].points;
+    return {
+      winners: standings.filter(function (r) { return r.points === top; })
+                        .map(function (r) { return r.player; }),
+      points: top
+    };
+  }
+
+  function weeklyAwards(subs, window) {
+    var games = CONFIG.GAMES.map(function (g) {
+      var only = subs.filter(function (s) { return s.game === g.id; });
+      var w = winnersOf(overall(only, window));
+      return { gameId: g.id, winners: w.winners, points: w.points };
+    });
+    return { games: games, champion: winnersOf(overall(subs, window)) };
+  }
+
+  var API = { dedupe: dedupe, rankEntries: rankEntries, gameBoard: gameBoard, overall: overall, weeklyAwards: weeklyAwards };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.SCORING = API;
 })(typeof self !== 'undefined' ? self : this);

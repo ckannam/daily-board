@@ -35,6 +35,7 @@ function fetchScores() {
       state.scores = (d && d.scores) || [];
       setLive(true);
       render();
+      maybeShowSundayAwards();
     })
     .catch(function () { setLive(false); });
 }
@@ -351,6 +352,62 @@ document.getElementById('games').addEventListener('keydown', function (e) {
   var card = e.target.closest('.game');
   if (card) { e.preventDefault(); openGameDetail(card.dataset.game); }
 });
+
+// ── Weekly awards ───────────────────────────────────────────────────────────────
+// Krill/Q/Tapper/Most-Farflung of the week + overall Week Champion, over the
+// trailing 7 days. Auto-pops once on the first Sunday open; the 🏆 button reopens
+// it any day. "Winner" = most placement points; ties show co-winners.
+var CHAMPION_AWARD = 'Week Champion';
+var awardsBg    = document.getElementById('awardsBg');
+var awardsPanel = document.getElementById('awardsPanel');
+
+function awardCard(emoji, title, winners, points, accent, gameId) {
+  var names = winners.length ? winners.map(esc).join(' & ') : '—';
+  var meta  = winners.length ? points + ' pts' : 'nobody played';
+  var attr  = gameId ? ' data-game="' + gameId + '"' : ' data-champion';
+  return '<div class="award"' + attr + ' style="--aw:' + accent + '">' +
+         '<div class="aw-emoji">' + emoji + '</div>' +
+         '<div class="aw-body"><div class="aw-title">' + esc(title) + '</div>' +
+         '<div class="aw-winner">' + names + '</div></div>' +
+         '<div class="aw-pts">' + esc(meta) + '</div></div>';
+}
+
+function renderAwards() {
+  var a = SCORING.weeklyAwards(state.scores, windowRange('week'));
+  var gameById = {};
+  a.games.forEach(function (g) { gameById[g.gameId] = g; });
+  var cards = awardCard('👑', CHAMPION_AWARD, a.champion.winners, a.champion.points, 'var(--gold)', null) +
+    CONFIG.GAMES.map(function (g) {
+      var w = gameById[g.id];
+      return awardCard(g.emoji, g.award, w.winners, w.points, g.accent, g.id);
+    }).join('');
+  awardsPanel.innerHTML =
+    '<div class="awards-head"><b>🏆 Awards of the Week</b>' +
+      '<button class="awards-close" aria-label="Close">✕</button></div>' +
+    '<div class="awards-sub">last 7 days</div>' +
+    (a.champion.winners.length
+      ? cards
+      : '<div class="awards-empty">No scores in the last 7 days yet — play some games and check back Sunday.</div>');
+  awardsPanel.querySelector('.awards-close').addEventListener('click', closeAwards);
+}
+
+function openAwards() { renderAwards(); awardsBg.classList.add('show'); }
+function closeAwards() { awardsBg.classList.remove('show'); }
+document.getElementById('openAwards').addEventListener('click', openAwards);
+awardsBg.addEventListener('click', function (e) { if (e.target === awardsBg) closeAwards(); });
+
+function nyWeekday() {
+  return new Intl.DateTimeFormat('en-US', { timeZone: CONFIG.TIMEZONE, weekday: 'short' }).format(new Date());
+}
+function maybeShowSundayAwards() {
+  if (state.awardsAutoChecked) return;      // once per page load, after data arrives
+  state.awardsAutoChecked = true;
+  if (nyWeekday() !== 'Sun') return;        // Sundays only
+  var key = todayKey();
+  if (localStorage.getItem('db_awards_seen') === key) return; // once per person per week
+  localStorage.setItem('db_awards_seen', key);
+  openAwards();
+}
 
 // ── Go ─────────────────────────────────────────────────────────────────────────
 fetchScores();

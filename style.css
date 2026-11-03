@@ -235,3 +235,41 @@ body {
 .bar-track { flex: 1; background: #1a1f38; border-radius: 6px; height: 16px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 6px; min-width: 6px; }
 .bar-val { width: 28px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+/* ── Weekly awards ─────────────────────────────────────────────────────────── */
+.awards-btn {
+  flex: 0 0 auto; border: 1px solid var(--line); background: var(--panel);
+  width: 40px; height: 40px; border-radius: 11px; font-size: 19px; cursor: pointer;
+  line-height: 1; display: flex; align-items: center; justify-content: center;
+}
+.awards-btn:active { transform: scale(.94); }
+
+.awards {
+  background: linear-gradient(180deg, #1a1326 0%, #0d1124 42%); width: 100%; max-width: 480px;
+  border-radius: 18px 18px 0 0; border-top: 1px solid var(--gold);
+  padding: 18px 16px 26px; max-height: 88vh; overflow-y: auto;
+}
+.awards-head { display: flex; align-items: center; justify-content: space-between; }
+.awards-head b { font-size: 18px; }
+.awards-close {
+  border: 0; background: var(--panel); color: var(--muted); width: 34px; height: 34px;
+  border-radius: 9px; font-size: 15px; cursor: pointer;
+}
+.awards-sub { font-size: 11px; text-transform: uppercase; letter-spacing: .9px; color: var(--muted); margin: 2px 0 14px; }
+.awards-empty { color: var(--muted); font-size: 13.5px; font-style: italic; padding: 8px 2px 4px; }
+
+.award {
+  display: flex; align-items: center; gap: 12px; padding: 12px 13px; margin-bottom: 9px;
+  background: var(--panel-2); border: 1px solid var(--line); border-left: 3px solid var(--aw);
+  border-radius: 13px;
+}
+.award[data-champion] {
+  background: linear-gradient(135deg, rgba(231,198,107,.14), rgba(140,30,60,.14));
+  border-color: var(--gold);
+}
+.aw-emoji { font-size: 26px; line-height: 1; flex: 0 0 auto; }
+.aw-body { flex: 1; min-width: 0; }
+.aw-title { font-size: 11px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
+.aw-winner { font-size: 17px; font-weight: 700; color: var(--text); margin-top: 1px; }
+.award[data-champion] .aw-winner { color: var(--gold); }
+.aw-pts { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; flex: 0 0 auto; text-align: right; }

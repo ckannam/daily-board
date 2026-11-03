@@ -1,7 +1,7 @@
 'use strict';
 /* Run: node test/scoring.test.js */
 const assert = require('assert');
-const { gameBoard, overall } = require('../scoring');
+const { gameBoard, overall, weeklyAwards } = require('../scoring');
 
 let passed = 0;
 function ok(name, fn) { fn(); passed++; console.log('  ✓ ' + name); }
@@ -96,6 +96,48 @@ ok('overall tie-break: more games played ranks higher', () => {
   ];
   const o = overall(subs, {});
   assert.strictEqual(o[o.length - 1].player, 'C'); // fewest points last
+});
+
+ok('weeklyAwards picks the top points per game and overall champion', () => {
+  const subs = [
+    sub('Sam', 'krillion', '2026-11-02', 241),  // krill 1st → 10
+    sub('Cole', 'krillion', '2026-11-02', 210),  // krill 2nd → 9
+    sub('Eitan', 'gnarlyq', '2026-11-02', 50),   // Q 1st → 10
+    sub('Sam', 'gnarlyq', '2026-11-02', 40),      // Q 2nd → 9  → Sam overall 19
+    sub('Cole', 'maptap', '2026-11-02', 100),     // tapper 1st → 10
+    sub('Tomas', 'farflung', '2026-11-02', 100),  // farflung 1st → 10
+  ];
+  const a = weeklyAwards(subs, {});
+  const byGame = {};
+  a.games.forEach(g => { byGame[g.gameId] = g.winners; });
+  assert.deepStrictEqual(byGame.krillion, ['Sam']);
+  assert.deepStrictEqual(byGame.gnarlyq, ['Eitan']);
+  assert.deepStrictEqual(byGame.maptap, ['Cole']);
+  assert.deepStrictEqual(byGame.farflung, ['Tomas']);
+  // Sam (10+9) and Cole (9+10) both total 19 → genuine co-champions.
+  assert.deepStrictEqual(a.champion.winners.slice().sort(), ['Cole', 'Sam']);
+});
+
+ok('weeklyAwards returns co-winners on a tie and empty for unplayed games', () => {
+  const subs = [
+    sub('A', 'krillion', '2026-11-02', 100), // tie
+    sub('B', 'krillion', '2026-11-02', 100), // tie → both rank 1 → both 10
+  ];
+  const a = weeklyAwards(subs, {});
+  const byGame = {};
+  a.games.forEach(g => { byGame[g.gameId] = g.winners; });
+  assert.deepStrictEqual(byGame.krillion.sort(), ['A', 'B']);
+  assert.deepStrictEqual(byGame.farflung, []); // nobody played
+  assert.deepStrictEqual(a.champion.winners.sort(), ['A', 'B']);
+});
+
+ok('weeklyAwards respects the date window', () => {
+  const subs = [
+    sub('Old', 'krillion', '2026-10-01', 999), // outside window
+    sub('New', 'krillion', '2026-11-02', 100),
+  ];
+  const a = weeklyAwards(subs, { from: '2026-10-27', to: '2026-11-02' });
+  assert.deepStrictEqual(a.games.find(g => g.gameId === 'krillion').winners, ['New']);
 });
 
 console.log(`\n${passed} passed`);

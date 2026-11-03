@@ -5,16 +5,16 @@
 
   // The friend group. Add names here; the typeahead picks them up automatically.
   var PLAYERS = [
-    'CVT', 'Eitan', 'Gabe', 'Setji', 'Setty', 'Matt', 'Sam', 'Tomas', 'Rou', 'Cole'
+    'CVT', 'Eitan', 'Gave', 'Setji', 'Setty', 'Matt', 'Sam', 'Tomas', 'Rou', 'Cole'
   ];
 
   // Game metadata. `emoji` + `label` drive the UI; `higher` = higher score wins.
   // Order here is the order the cards render on the board.
   var GAMES = [
-    { id: 'krillion', label: 'Krillion', emoji: '🦐', higher: true, accent: '#6ceaf7' },
-    { id: 'gnarlyq',  label: 'GnarlyQ',  emoji: '🕹️', higher: true, accent: '#4f86ff' },
-    { id: 'maptap',   label: 'MapTap',   emoji: '🌐', higher: true, accent: '#2ee6e6' },
-    { id: 'farflung', label: 'Farflung', emoji: '🧭', higher: true, accent: '#d2574f' }
+    { id: 'krillion', label: 'Krillion', emoji: '🦐', higher: true, accent: '#6ceaf7', award: 'Krill of the Week' },
+    { id: 'gnarlyq',  label: 'GnarlyQ',  emoji: '🕹️', higher: true, accent: '#4f86ff', award: 'Q of the Week' },
+    { id: 'maptap',   label: 'MapTap',   emoji: '🌐', higher: true, accent: '#2ee6e6', award: 'Tapper of the Week' },
+    { id: 'farflung', label: 'Farflung', emoji: '🧭', higher: true, accent: '#d2574f', award: 'Most Farflung' }
   ];
 
   var GAME_BY_ID = GAMES.reduce(function (m, g) { m[g.id] = g; return m; }, {});

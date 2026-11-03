@@ -43,11 +43,14 @@ function ghHeaders() {
 
 let SCORES = [];       // in-memory source of truth for reads
 let SCORES_SHA = null; // current blob sha for commits
+let DIAG = { tokenPresent: false, load: null, lastPersist: null }; // debug surface
 
 async function loadScores() {
+  DIAG.tokenPresent = !!process.env.GITHUB_TOKEN;
   if (process.env.GITHUB_TOKEN) {
     try {
       const res = await fetch(SCORES_API, { headers: ghHeaders() });
+      DIAG.load = { status: res.status, ok: res.ok };
       if (res.ok) {
         const { sha, content } = await res.json();
         SCORES_SHA = sha;
@@ -56,7 +59,7 @@ async function loadScores() {
         return;
       }
       console.warn(`GitHub GET scores.json → ${res.status}; starting empty`);
-    } catch (e) { console.warn('GitHub load failed:', e.message); }
+    } catch (e) { DIAG.load = { error: e.message }; console.warn('GitHub load failed:', e.message); }
   }
   // Local fallback (dev without a token)
   try { SCORES = JSON.parse(fs.readFileSync(LOCAL_FILE, 'utf8')); }
@@ -77,14 +80,19 @@ async function persistScores(message) {
   });
   try {
     let res = await put(SCORES_SHA);
-    if (res.status === 409) { // stale sha — refetch once
+    if (res.status === 409 || res.status === 422) { // stale/missing sha — refetch once
       const fresh = await fetch(SCORES_API, { headers: ghHeaders() });
-      SCORES_SHA = (await fresh.json()).sha;
-      res = await put(SCORES_SHA);
+      if (fresh.ok) { SCORES_SHA = (await fresh.json()).sha; res = await put(SCORES_SHA); }
     }
-    if (res.ok) { SCORES_SHA = (await res.json()).content.sha; }
-    else console.error('GitHub PUT scores.json failed:', res.status);
-  } catch (e) { console.error('persist failed:', e.message); }
+    if (res.ok) {
+      SCORES_SHA = (await res.json()).content.sha;
+      DIAG.lastPersist = { ok: true, status: res.status, at: new Date().toISOString() };
+    } else {
+      const body = await res.text();
+      DIAG.lastPersist = { ok: false, status: res.status, detail: body.slice(0, 300), at: new Date().toISOString() };
+      console.error('GitHub PUT scores.json failed:', res.status, body);
+    }
+  } catch (e) { DIAG.lastPersist = { ok: false, error: e.message, at: new Date().toISOString() }; console.error('persist failed:', e.message); }
 }
 
 // ── Validation + helpers ──────────────────────────────────────────────────────
@@ -114,6 +122,9 @@ function validateSubmission(body) {
 
 // GET /api/scores → { scores: [...] }  (board computes leaderboards client-side)
 app.get('/api/scores', (req, res) => res.json({ scores: SCORES }));
+
+// GET /api/health → persistence diagnostics (no secrets; booleans + GitHub status codes)
+app.get('/api/health', (req, res) => res.json(Object.assign({ scoresInMemory: SCORES.length }, DIAG)));
 
 // POST /api/submit  Body: { player, game, day, score, raw }
 app.post('/api/submit', async (req, res) => {

@@ -25,7 +25,11 @@ body {
 
 /* Header */
 .header { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
-.crest { width: 46px; height: 54px; border-radius: 7px; object-fit: contain; flex: 0 0 auto; }
+.crest {
+  width: 50px; height: 50px; border-radius: 50%; object-fit: contain;
+  background: #fff; padding: 3px; flex: 0 0 auto;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.35);
+}
 .crest-fallback {
   width: 46px; height: 54px; flex: 0 0 auto; border-radius: 7px;
   background: radial-gradient(circle at 50% 35%, #3a0f1c, #120307 70%);

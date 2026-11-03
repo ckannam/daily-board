@@ -3,7 +3,7 @@
 
 // Backend: same origin in local dev, Render in production. Update if the
 // Render service URL differs.
-var RENDER_URL = 'https://daily-board.onrender.com';
+var RENDER_URL = 'https://daily-board-l49e.onrender.com';
 var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? '' : RENDER_URL;
 
 var POLL_MS = 4000;

@@ -17,7 +17,7 @@ app.use(express.json());
 // ── CORS (GitHub Pages origin + localhost) ────────────────────────────────────
 app.use((req, res, next) => {
   const origin  = req.headers.origin || '';
-  const allowed = /^https:\/\/ckannam\.github\.io$|^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+  const allowed = /^https:\/\/colekannam\.github\.io$|^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
   if (allowed.test(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 });
 
 // ── GitHub persistence ────────────────────────────────────────────────────────
-const REPO_OWNER = 'ckannam';
+const REPO_OWNER = 'colekannam';
 const REPO_NAME  = 'daily-board';
 const SCORES_PATH = 'data/scores.json';
 const SCORES_API  = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${SCORES_PATH}`;

@@ -42,12 +42,12 @@ npm test                # parsers + scoring suites
 ```bash
 # from this folder, after `git init` + first commit:
 git branch -M main
-git remote add origin https://github.com/ckannam/daily-board.git
+git remote add origin https://github.com/colekannam/daily-board.git
 git push -u origin main
 ```
 
 Then in the repo settings: **Pages → Deploy from branch → `main` / root**. The
-site goes live at `https://ckannam.github.io/daily-board/`.
+site goes live at `https://colekannam.github.io/daily-board/`.
 
 ### 2. Make a GitHub token
 

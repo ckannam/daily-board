@@ -13,8 +13,8 @@
   var GAMES = [
     { id: 'krillion', label: 'Krillion', emoji: '🦐', higher: true },
     { id: 'gnarlyq',  label: 'GnarlyQ',  emoji: '🕹️', higher: true },
-    { id: 'maptap',   label: 'MapTap',   emoji: '🗺️', higher: true },
-    { id: 'farflung', label: 'Farflung', emoji: '🎯', higher: true }
+    { id: 'maptap',   label: 'MapTap',   emoji: '🌐', higher: true },
+    { id: 'farflung', label: 'Farflung', emoji: '🧭', higher: true }
   ];
 
   var GAME_BY_ID = GAMES.reduce(function (m, g) { m[g.id] = g; return m; }, {});

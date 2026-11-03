@@ -75,7 +75,7 @@ function renderGames() {
     var subtitle = state.win === 'today'
       ? played + ' played'
       : played + ' competing';
-    return '<div class="game"><div class="gh"><b>' + g.emoji + ' ' + g.label + '</b>' +
+    return '<div class="game" data-game="' + g.id + '"><div class="gh"><b>' + g.emoji + ' ' + g.label + '</b>' +
            '<span>' + subtitle + '</span></div>' + body + '</div>';
   }).join('');
 }

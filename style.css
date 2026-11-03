@@ -111,3 +111,83 @@ body {
 .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line); color: var(--text); padding: 11px 18px; border-radius: 12px; font-size: 14px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 60; }
 .toast.show { opacity: 1; }
 .updating { font-size: 10px; color: var(--muted); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Per-game skins — each card dresses up as its own game.
+   The board chrome (header/tabs/overall) stays garnet so it reads as one app.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Krillion — the daily dive: night-ocean, pixel wordmark, cyan + pink glitch */
+.game[data-game="krillion"] {
+  background: linear-gradient(180deg, #071734 0%, #040e1d 72%);
+  border-color: #123a5e;
+}
+.game[data-game="krillion"] .gh b {
+  font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 1px;
+  color: #49dff0; text-transform: uppercase;
+  text-shadow: -1.5px 0 rgba(255,47,115,.9), 1.5px 0 rgba(73,223,240,.55);
+}
+.game[data-game="krillion"] .gh span { color: #5b89b8; }
+.game[data-game="krillion"] .pos { color: #3a6ea5; }
+.game[data-game="krillion"] .row .sc { color: #8fd9e6; }
+.game[data-game="krillion"] .row.top .sc { color: #fff; text-shadow: 0 0 9px #49dff0; }
+.game[data-game="krillion"] .pts { color: #4e7ba8; }
+.game[data-game="krillion"] .empty { color: #4e7ba8; }
+
+/* GnarlyQ — 8-bit arcade: bright panel, blue pixel type */
+.game[data-game="gnarlyq"] {
+  background: #eaf0fb; border-color: #c4d2ef;
+}
+.game[data-game="gnarlyq"] .gh b {
+  font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 1px;
+  color: #2f6bff; text-transform: uppercase;
+}
+.game[data-game="gnarlyq"] .gh span { color: #6b7da6; }
+.game[data-game="gnarlyq"] .pos { color: #90a0c4; }
+.game[data-game="gnarlyq"] .row .nm { color: #14213d; }
+.game[data-game="gnarlyq"] .row .sc { color: #51618a; }
+.game[data-game="gnarlyq"] .row.top .sc {
+  color: #2f6bff; font-family: 'Press Start 2P', monospace; font-size: 11px;
+}
+.game[data-game="gnarlyq"] .pts { color: #6b7da6; }
+.game[data-game="gnarlyq"] .empty { color: #6b7da6; }
+
+/* MapTap — black space globe: cyan hairline, mono, SCORE-box lead */
+.game[data-game="maptap"] {
+  background: radial-gradient(130% 95% at 12% 115%, #0c2e4e 0%, #000 56%);
+  border-color: #17434d;
+}
+.game[data-game="maptap"] .gh b {
+  font-family: 'Space Mono', monospace; font-weight: 700; letter-spacing: 1px; color: #2ee6e6;
+}
+.game[data-game="maptap"] .gh span { color: #4b7c86; font-family: 'Space Mono', monospace; font-size: 10px; }
+.game[data-game="maptap"] .pos { color: #3f7f88; }
+.game[data-game="maptap"] .row .nm { font-family: 'Space Mono', monospace; }
+.game[data-game="maptap"] .row .sc { color: #79c7cf; font-family: 'Space Mono', monospace; }
+.game[data-game="maptap"] .row.top .sc {
+  color: #2ee6e6; border: 1px solid #2ee6e6; border-radius: 5px; padding: 1px 7px;
+}
+.game[data-game="maptap"] .pts { color: #4b7c86; }
+.game[data-game="maptap"] .empty { color: #4b7c86; }
+
+/* Farflung — vintage expedition: parchment, dashed border, maroon slab serif */
+.game[data-game="farflung"] {
+  background: #e9ddc2; border: 1px dashed #b08a5a;
+}
+.game[data-game="farflung"] .gh b {
+  font-family: 'Zilla Slab', serif; font-weight: 700; font-size: 15px;
+  letter-spacing: .5px; color: #8a2b2b; text-transform: uppercase;
+}
+.game[data-game="farflung"] .gh span { color: #8a7250; font-family: 'Zilla Slab', serif; }
+.game[data-game="farflung"] .pos { color: #a98a5e; }
+.game[data-game="farflung"] .row { font-family: 'Zilla Slab', serif; }
+.game[data-game="farflung"] .row .nm { color: #3a2c20; }
+.game[data-game="farflung"] .row .sc { color: #6b5436; }
+.game[data-game="farflung"] .row.top .sc { color: #8a2b2b; font-weight: 700; }
+.game[data-game="farflung"] .pts { color: #8a7250; }
+.game[data-game="farflung"] .empty { color: #8a7250; font-style: italic; }
+
+@media (prefers-reduced-motion: reduce) {
+  .header .live .dot { animation: none; }
+  .submit:active { transform: none; }
+}

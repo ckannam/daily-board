@@ -102,8 +102,9 @@ function renderOverall() {
     ? standings.map(function (r, i) {
         var pos = i < 3 ? medals[i] : (i + 1);
         var cls = i === 0 ? 'row top' : 'row';
+        var games = '<span class="pts">' + r.gamesPlayed + (r.gamesPlayed === 1 ? ' game' : ' games') + '</span>';
         return '<div class="' + cls + '"><div class="pos">' + pos + '</div>' +
-               '<div class="nm">' + esc(r.player) + '</div>' +
+               '<div class="nm">' + esc(r.player) + games + '</div>' +
                '<div class="pts-big">' + r.points + '</div></div>';
       }).join('')
     : '<div class="empty">No scores yet — be the first</div>';

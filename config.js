@@ -5,7 +5,7 @@
 
   // The friend group. Add names here; the typeahead picks them up automatically.
   var PLAYERS = [
-    'CVT', 'Eitan', 'Gave', 'Setji', 'Setty', 'Matt', 'Sam', 'Tomas', 'Rou', 'Cole'
+    'CVT', 'Eitan', 'Gave', 'Setji', 'Setty', 'Matt', 'Sam', 'Tomas', 'Rou', 'Cole', 'Gorm'
   ];
 
   // Game metadata. `emoji` + `label` drive the UI; `higher` = higher score wins.

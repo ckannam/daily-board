@@ -142,6 +142,7 @@ function openModal() {
   preview.textContent = '';
   nameSec.style.display = 'none';
   state.parsed = null;
+  state.newMode = false;
   nameInput.value = state.name;
   renderSuggest(state.name);
   updateSubmitEnabled();
@@ -171,28 +172,59 @@ pasteBox.addEventListener('input', function () {
   updateSubmitEnabled();
 });
 
+// Roster shown in the picker = seed names (config) ∪ everyone already on the
+// board, deduped case-insensitively so it grows as new people add themselves.
+function knownPlayers() {
+  var seen = {}, out = [];
+  function add(n) { var k = (n || '').toLowerCase(); if (n && !seen[k]) { seen[k] = true; out.push(n); } }
+  CONFIG.PLAYERS.forEach(add);
+  state.scores.forEach(function (s) { add(s.player); });
+  return out;
+}
+
 function renderSuggest(filter) {
   var f = (filter || '').toLowerCase().trim();
-  var matches = CONFIG.PLAYERS.filter(function (p) { return !f || p.toLowerCase().indexOf(f) === 0 || p.toLowerCase().indexOf(f) >= 0; });
-  suggest.innerHTML = matches.map(function (p) {
+  var roster = knownPlayers();
+  var matches = roster.filter(function (p) { return !f || p.toLowerCase().indexOf(f) >= 0; });
+  var exists  = roster.some(function (p) { return p.toLowerCase() === f; });
+
+  var html = matches.map(function (p) {
     return '<button data-name="' + esc(p) + '"' + (p === state.name ? ' class="sel"' : '') + '>' + esc(p) + '</button>';
   }).join('');
+  // The "add me" chip — labelled with the typed name when there is a new one.
+  var addLabel = (f && !exists) ? '＋ Add “' + esc(filter.trim()) + '”' : '＋ New name';
+  html += '<button class="add-new' + (state.newMode ? ' sel' : '') + '" data-add="1">' + addLabel + '</button>';
+
+  suggest.innerHTML = html;
   Array.prototype.forEach.call(suggest.querySelectorAll('button'), function (b) {
     b.addEventListener('click', function () {
-      state.name = b.dataset.name;
-      nameInput.value = state.name;
-      renderSuggest(state.name);
+      if (b.dataset.add) {
+        state.newMode = true;
+        var typed = nameInput.value.trim();
+        if (typed && !roster.some(function (p) { return p.toLowerCase() === typed.toLowerCase(); })) {
+          state.name = typed;          // a new name is already typed → take it
+        } else {
+          state.name = '';             // nothing typed yet → let them type it now
+          nameInput.focus();
+        }
+      } else {
+        state.newMode = false;
+        state.name = b.dataset.name;   // picked an existing player
+        nameInput.value = state.name;
+      }
+      renderSuggest(nameInput.value);
       updateSubmitEnabled();
     });
   });
 }
 
 nameInput.addEventListener('input', function () {
-  state.name = CONFIG.PLAYERS.indexOf(nameInput.value) >= 0 ? nameInput.value : '';
-  // auto-select an exact single match while typing
-  var f = nameInput.value.toLowerCase().trim();
-  var exact = CONFIG.PLAYERS.filter(function (p) { return p.toLowerCase() === f; });
-  if (exact.length) state.name = exact[0];
+  var roster = knownPlayers();
+  var f = nameInput.value.trim();
+  var exact = roster.filter(function (p) { return p.toLowerCase() === f.toLowerCase(); });
+  if (exact.length)            state.name = exact[0];  // matches an existing player
+  else if (state.newMode && f) state.name = f;         // adding a new name — accept it
+  else                         state.name = '';        // unknown & not adding → hit ＋
   renderSuggest(nameInput.value);
   updateSubmitEnabled();
 });
@@ -243,7 +275,7 @@ function toast(msg) {
 var PALETTE = ['#6ceaf7','#ffb703','#ff5d8f','#8bd450','#b48cff','#ff924c',
                '#4cc9f0','#f15bb5','#80ed99','#fee440','#9b5de5','#00bbf9'];
 function colorFor(player) {
-  var i = CONFIG.PLAYERS.indexOf(player);
+  var i = knownPlayers().indexOf(player);
   return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
 }
 function uniq(v, i, a) { return a.indexOf(v) === i; }
@@ -288,8 +320,9 @@ function lineChart(gameId) {
   if (!subs.length) return '<div class="chart-empty">No scores yet — play ' + label + " and everyone's runs will chart here.</div>";
 
   var dates = subs.map(function (s) { return s.date; }).filter(uniq).sort();
+  var roster = knownPlayers();
   var players = subs.map(function (s) { return s.player; }).filter(uniq)
-                    .sort(function (a, b) { return CONFIG.PLAYERS.indexOf(a) - CONFIG.PLAYERS.indexOf(b); });
+                    .sort(function (a, b) { return roster.indexOf(a) - roster.indexOf(b); });
   var byPD = {}; subs.forEach(function (s) { byPD[s.player + '|' + s.date] = s.score; });
 
   var vals = subs.map(function (s) { return s.score; });

@@ -102,13 +102,40 @@ function todayKey() {
   }).format(new Date());
 }
 
-function validateSubmission(body) {
+// Roster = seed list (config) ∪ anyone who has ever submitted a score, deduped
+// case-insensitively so the board grows itself as new people join.
+function knownPlayers() {
+  const seen = {}, out = [];
+  const add = (n) => {
+    if (typeof n !== 'string' || !n) return;
+    const k = n.toLowerCase();
+    if (!seen[k]) { seen[k] = true; out.push(n); } // first spelling wins (seeds first)
+  };
+  CONFIG.PLAYERS.forEach(add);
+  SCORES.forEach((s) => add(s.player));
+  return out;
+}
+
+// Trim + length-check a submitted name, and fold it onto an existing player
+// when it only differs by case ("cole" → "Cole"). Returns the canonical name,
+// or null if it isn't a usable name.
+function normalizePlayer(name, known) {
+  if (typeof name !== 'string') return null;
+  const t = name.trim();
+  if (t.length < 1 || t.length > 24) return null;
+  const hit = known.find((p) => p.toLowerCase() === t.toLowerCase());
+  return hit || t;
+}
+
+function validateSubmission(body, known) {
   const b = body || {};
-  if (CONFIG.PLAYERS.indexOf(b.player) < 0) return { ok: false, error: 'unknown player' };
+  const roster = known || knownPlayers();
+  const player = normalizePlayer(b.player, roster);
+  if (!player)                               return { ok: false, error: 'name must be 1–24 characters' };
   if (!CONFIG.GAME_BY_ID[b.game])            return { ok: false, error: 'unknown game' };
   if (typeof b.score !== 'number' || isNaN(b.score)) return { ok: false, error: 'score must be a number' };
   return { ok: true, record: {
-    player: b.player,
+    player: player,                     // normalized (trimmed, canonical casing)
     game:   b.game,
     day:    String(b.day == null ? '' : b.day),
     score:  b.score,
@@ -144,9 +171,13 @@ app.post('/api/submit', async (req, res) => {
 app.use(express.static(__dirname));
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3000;
-loadScores().then(() => {
-  app.listen(PORT, () => console.log(`Daily Board on port ${PORT}`));
-});
+// Only boot the HTTP server when run directly (`node server.js`); when this file
+// is require()'d by a test we just want the exported helpers, not a live port.
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  loadScores().then(() => {
+    app.listen(PORT, () => console.log(`Daily Board on port ${PORT}`));
+  });
+}
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { validateSubmission, todayKey };
+if (typeof module !== 'undefined' && module.exports) module.exports = { validateSubmission, normalizePlayer, knownPlayers, todayKey };

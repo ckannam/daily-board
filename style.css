@@ -104,6 +104,8 @@ body {
   border-radius: 20px; padding: 7px 13px; font: inherit; font-size: 13px; cursor: pointer;
 }
 .suggest button.sel { background: var(--garnet); border-color: var(--garnet); color: #fff; font-weight: 600; }
+.suggest button.add-new { border-style: dashed; border-color: var(--gold); color: var(--gold); background: transparent; }
+.suggest button.add-new.sel { background: var(--gold); border-color: var(--gold); color: #2a1206; font-weight: 600; }
 
 .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
 .modal-actions button { flex: 1; border: 0; border-radius: 12px; padding: 13px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }

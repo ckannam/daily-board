@@ -1,10 +1,9 @@
 'use strict';
 /* Daily Board frontend glue. */
 
-// Backend: same origin in local dev, Render in production. Update if the
-// Render service URL differs.
-var RENDER_URL = 'https://daily-board-l49e.onrender.com';
-var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? '' : RENDER_URL;
+// Backend: always same origin. The server serves both the page and the
+// /api routes, so a blank base works everywhere (localhost and any deploy).
+var API_BASE = '';
 
 var POLL_MS = 4000;
 var state = { scores: [], win: 'today', parsed: null, name: localStorage.getItem('db_name') || '' };
